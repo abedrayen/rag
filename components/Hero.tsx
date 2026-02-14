@@ -50,7 +50,7 @@ export default function Hero() {
             onClick={scrollToLevel1}
             className="px-6 py-3 rounded-xl bg-accent text-white font-medium hover:opacity-90 transition-opacity"
           >
-            Start Level 1
+            Start with Embeddings
           </button>
           <button
             onClick={() => document.getElementById("level-6")?.scrollIntoView({ behavior: "smooth" })}

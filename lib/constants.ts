@@ -3,10 +3,12 @@ export const XP_PER_LEVEL = 100;
 export const STORAGE_KEY = "rag-workshop-progress";
 
 export const LEVEL_TITLES: Record<number, string> = {
-  1: "The Illusion of Intelligence",
-  2: "The Rise of RAG",
-  3: "Breaking RAG",
-  4: "Agents Enter the Game",
-  5: "Multi-Agent Systems",
-  6: "Real Production System",
+  1: "Embeddings",
+  2: "RAG Journey",
+  3: "The RAG Pipeline",
+  4: "Breaking RAG",
+  5: "Agentic Systems",
+  6: "Real Production Architecture",
 };
+
+export const INSTRUCTOR_STORAGE_KEY = "rag-workshop-instructor";

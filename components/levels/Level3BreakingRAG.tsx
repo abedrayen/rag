@@ -4,8 +4,11 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useProgress } from "@/context/ProgressContext";
 import { useLevelNumber } from "@/context/LevelContext";
+import { useLevelView } from "@/context/LevelViewContext";
 import GlassCard from "@/components/GlassCard";
-import AIJokeTooltip from "@/components/AIJokeTooltip";
+import LevelModeTabs from "@/components/pedagogy/LevelModeTabs";
+import ExplainablePanel from "@/components/pedagogy/ExplainablePanel";
+import InstructorNotes from "@/components/pedagogy/InstructorNotes";
 
 const FAILURE_OPTIONS = [
   { id: "a", label: "The model was too small", correct: false },
@@ -13,9 +16,18 @@ const FAILURE_OPTIONS = [
   { id: "c", label: "The user asked in French", correct: false },
 ];
 
+const CONCEPT_BREAKING_RAG = {
+  what: "RAG can fail for many reasons: wrong retrieval, context overflow, latency, or stale index. Understanding failure modes is essential for production.",
+  why: "We need to know when RAG is not enough—e.g. when we need multi-step reasoning or tool use—and how to debug and improve RAG systems.",
+  how: "Simulate and monitor: wrong retrieval (bad embeddings or chunking), context overflow (too many/large chunks), latency (embed + retrieve + LLM).",
+  limitations: "RAG has no reasoning loop. It's single-shot retrieve + generate. No planning, no tool use, no iteration.",
+  when: "Use RAG when one retrieval + one generation suffices. When you need iteration, tools, or complex decisions, consider agents.",
+};
+
 export default function Level3BreakingRAG() {
   const { completeLevel, isLevelCompleted } = useProgress();
   const levelNumber = useLevelNumber();
+  const { mode } = useLevelView();
   const completedRef = useRef(false);
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -28,12 +40,24 @@ export default function Level3BreakingRAG() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
+      <LevelModeTabs levelNumber={levelNumber} />
+
+      {mode === "explanation" ? (
+        <>
+          <ExplainablePanel title="Why RAG breaks" concept={CONCEPT_BREAKING_RAG} defaultOpen />
+          <div className="glass rounded-xl p-6 space-y-4">
+            <h3 className="font-semibold text-amber-400">Explainable panel</h3>
+            <ul className="text-sm text-textMuted space-y-2">
+              <li>• <strong className="text-white">Why RAG is not enough for automation:</strong> No loop, no tools. Single shot only.</li>
+              <li>• <strong className="text-white">Why no reasoning loop exists:</strong> RAG retrieves once and generates once. Agents add Reason → Act → Observe.</li>
+            </ul>
+          </div>
+        </>
+      ) : (
+        <>
       <p className="text-textMuted">
         RAG fails in production when retrieval is bad, context is too large, or latency blows up.
-        <AIJokeTooltip joke="'It worked in the notebook' — every RAG engineer, ever.">
-          <span className="text-accent cursor-help border-b border-dotted border-accent"> Sound familiar?</span>
-        </AIJokeTooltip>
       </p>
 
       <div>
@@ -118,6 +142,12 @@ export default function Level3BreakingRAG() {
           </div>
         </GlassCard>
       </div>
+        </>
+      )}
+
+      <InstructorNotes title="Instructor notes — Level 4">
+        <p><strong>Key question:</strong> &quot;What would we need to add to RAG to support multi-step research?&quot; (Agents, tools, loop.)</p>
+      </InstructorNotes>
 
       {isLevelCompleted(levelNumber) && (
         <motion.div

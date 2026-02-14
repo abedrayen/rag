@@ -9,6 +9,11 @@
   --accent-secondary: #22d3ee;
   --border: rgba(255, 255, 255, 0.08);
   --text-muted: rgba(255, 255, 255, 0.6);
+  /* Pedagogical color coding */
+  --color-llm: #3b82f6;
+  --color-retrieval: #22c55e;
+  --color-agent: #a855f7;
+  --color-tools: #f97316;
 }
 
 html {
