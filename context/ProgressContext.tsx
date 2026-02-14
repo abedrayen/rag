@@ -66,6 +66,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     if (state.highestCompletedLevel > 0 || state.xp > 0) saveProgress(state);
   }, [state.highestCompletedLevel, state.xp]);
 
+  // Level N is unlocked when level N-1 is completed (highestCompletedLevel >= N-1).
+  // Level 1 is always unlocked (0 >= 0). Level 2 unlocks when L1 is completed (1 >= 1), etc.
   const isLevelUnlocked = useCallback(
     (level: number) => level >= 1 && level <= TOTAL_LEVELS && state.highestCompletedLevel >= level - 1,
     [state.highestCompletedLevel]

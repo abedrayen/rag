@@ -1,145 +1,173 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useProgress } from "@/context/ProgressContext";
 import { useLevelNumber } from "@/context/LevelContext";
-import { useLevelView } from "@/context/LevelViewContext";
-import HallucinationDemo from "@/components/HallucinationDemo";
-import QuizCard from "@/components/QuizCard";
-import ConsoleTerminal from "@/components/ConsoleTerminal";
-import GlassCard from "@/components/GlassCard";
-import LevelModeTabs from "@/components/pedagogy/LevelModeTabs";
-import ExplainablePanel from "@/components/pedagogy/ExplainablePanel";
+import StepByStep from "@/components/pedagogy/StepByStep";
+import TriggerQuestion from "@/components/pedagogy/TriggerQuestion";
+import ImportanceBlock from "@/components/pedagogy/ImportanceBlock";
+import TransitionQuestion from "@/components/pedagogy/TransitionQuestion";
+import ContextPanel from "@/components/pedagogy/ContextPanel";
+import LevelCompleteCard from "@/components/pedagogy/LevelCompleteCard";
 import InstructorNotes from "@/components/pedagogy/InstructorNotes";
 
-const BULLETS = [
-  { title: "Hallucinations", desc: "Models confidently invent facts when they don't know." },
-  { title: "No private data", desc: "Your docs and DB are invisible to the base model." },
-  { title: "No tool usage", desc: "Can't search or call APIs—just next-token prediction." },
-];
-
-const CONCEPT_LLM_LIMITS = {
-  what: "LLMs are large neural networks that predict the next token. They have no built-in access to databases, APIs, or private documents.",
-  why: "We need to understand their limits so we don't trust them for facts they weren't trained on or can't retrieve.",
-  how: "They are trained on vast text; at inference they only see the prompt and generate token-by-token. No 'lookup' step exists unless we add RAG or tools.",
-  limitations: "Hallucinations, knowledge cutoff, no private data, no tool use. Prompting alone cannot add capabilities.",
-  when: "Use base LLMs for general language tasks. Add RAG when you need your data; add agents when you need tools and multi-step reasoning.",
-};
+const IMPRESSIVE_ANSWER = "Our Q4 revenue was $2.4M, up 12% YoY. The growth was driven by enterprise contracts and the new API tier.";
+const HALLUCINATION_REVEAL = "I don't have access to your company data. The numbers above were invented. I'm a next-token predictor—I have no retrieval mechanism.";
 
 export default function Level1Illusion() {
   const { completeLevel, isLevelCompleted } = useProgress();
   const levelNumber = useLevelNumber();
-  const { mode } = useLevelView();
   const completedRef = useRef(false);
-  const [showWhatModelKnows, setShowWhatModelKnows] = useState(false);
+  const [showReveal, setShowReveal] = useState(false);
+  const [dbAnswer, setDbAnswer] = useState<"yes" | "no" | null>(null);
 
-  const handleQuizCorrect = () => {
+  const completeLevelOne = () => {
     if (completedRef.current) return;
     completedRef.current = true;
     completeLevel(levelNumber);
   };
 
-  return (
-    <div className="space-y-8">
-      <LevelModeTabs levelNumber={levelNumber} />
-
-      {mode === "explanation" ? (
-        <>
-          <ExplainablePanel
-            title="LLM limitations"
-            concept={CONCEPT_LLM_LIMITS}
-            defaultOpen
-          />
-          <div className="glass rounded-xl p-6 space-y-4">
-            <h3 className="font-semibold text-[var(--color-llm)]">Concept summary</h3>
-            <ul className="text-sm text-textMuted space-y-2">
-              <li>• <strong className="text-white">Why hallucinations happen:</strong> The model optimizes for plausible next tokens, not factual correctness. It has no “I don’t know” signal unless we add guardrails.</li>
-              <li>• <strong className="text-white">Why static models can’t access private DB:</strong> Inference is a forward pass over weights + prompt. No external data is read unless we inject it (e.g. RAG) or call tools.</li>
-              <li>• <strong className="text-white">Why prompting alone isn’t enough:</strong> Prompts can’t add new knowledge or actions; they only steer existing capabilities.</li>
-            </ul>
+  const steps = [
+    {
+      title: "Step 1 — An impressive answer",
+      content: (
+        <div className="space-y-3">
+          <p className="text-sm text-textMuted">Imagine asking: &quot;What was our Q4 revenue?&quot;</p>
+          <div className="glass rounded-xl p-4 border border-[var(--color-llm)]/30">
+            <p className="text-[var(--color-llm)]">{IMPRESSIVE_ANSWER}</p>
           </div>
-        </>
-      ) : (
-        <>
-          <p className="text-textMuted">
-            LLMs are fluent but limited: no access to your data, no tools, and a tendency to confidently guess.
-          </p>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-textMuted">Toggle:</span>
-            <button
-              onClick={() => setShowWhatModelKnows(!showWhatModelKnows)}
-              className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-                showWhatModelKnows ? "border-[var(--color-llm)] bg-[var(--color-llm)]/10" : "border-border"
-              }`}
-            >
-              Show what the model actually knows
-            </button>
-          </div>
-          {showWhatModelKnows && (
+        </div>
+      ),
+    },
+    {
+      title: "Step 2 — The reveal",
+      content: (
+        <div className="space-y-3">
+          <p className="text-sm text-textMuted">What does the model actually have access to?</p>
+          <button
+            onClick={() => setShowReveal(true)}
+            className="px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10 text-amber-400 text-sm font-medium"
+          >
+            {showReveal ? "Revealed" : "Reveal the truth"}
+          </button>
+          {showReveal && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="glass rounded-xl p-4 border border-[var(--color-llm)]/30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-xl border border-red-500/40 bg-red-500/10 p-4"
             >
-              <p className="text-sm text-textMuted">
-                <strong className="text-[var(--color-llm)]">Training data only</strong> — fixed snapshot of public text. No real-time info, no your docs, no DB. “Knowledge” is encoded in weights; no lookup at inference.
-              </p>
+              <p className="text-sm text-red-200">{HALLUCINATION_REVEAL}</p>
             </motion.div>
           )}
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              {BULLETS.map((b, i) => (
-                <GlassCard key={b.title} delay={i * 0.08}>
-                  <h3 className="font-semibold text-accentSecondary mb-1">{b.title}</h3>
-                  <p className="text-textMuted text-sm">{b.desc}</p>
-                </GlassCard>
-              ))}
-            </div>
-            <div>
-              <p className="text-textMuted text-sm mb-3">Vanilla model without RAG or tools</p>
-              <ConsoleTerminal />
-            </div>
+        </div>
+      ),
+    },
+    {
+      title: "Step 3 — Reflect",
+      content: (
+        <TriggerQuestion question="If the model sounds confident, does that mean it knows?" />
+      ),
+    },
+    {
+      title: "Step 4 — Check your intuition",
+      content: (
+        <div className="space-y-3">
+          <p className="text-sm text-textMuted">Does the model access your database?</p>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setDbAnswer("yes")}
+              className={`px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${dbAnswer === "yes" ? "border-red-500/50 bg-red-500/10" : "border-border hover:bg-white/5"}`}
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => {
+                setDbAnswer("no");
+                completeLevelOne();
+              }}
+              className={`px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${dbAnswer === "no" ? "border-green-500/50 bg-green-500/10" : "border-border hover:bg-white/5"}`}
+            >
+              No
+            </button>
           </div>
+          {dbAnswer === "no" && (
+            <ContextPanel variant="inline" title="Correct">
+              Base LLMs have no retrieval mechanism. To use your data, we need to add retrieval (e.g. RAG) or tools.
+            </ContextPanel>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Step 5 — How it works (mechanism)",
+      content: (
+        <div className="space-y-3">
+          <ContextPanel title="Probabilistic next-token prediction">
+            The model outputs a probability distribution over the next token. No &quot;lookup&quot;—only matrix multiplications over fixed weights.
+          </ContextPanel>
+          <ContextPanel title="No real-time knowledge">
+            Training has a cutoff. The model cannot see your DB or the internet at inference unless we inject it in the prompt.
+          </ContextPanel>
+          <ContextPanel title="No retrieval mechanism">
+            RAG and tool use are added by the application layer.
+          </ContextPanel>
+        </div>
+      ),
+    },
+    {
+      title: "Step 6 — Why this matters",
+      content: (
+        <div className="space-y-4">
+          <ImportanceBlock
+            title="Why this matters in real systems"
+            whyExists="To avoid trusting confident-sounding but false answers in high-stakes domains."
+            problemSolved="Base models cannot ground answers in private or up-to-date data."
+            riskReduced="Legal, medical, and financial risk."
+          />
+          <TransitionQuestion
+            question="If models don't retrieve knowledge… how can we make them grounded?"
+            nextLevel="Meaning as Position (Embeddings)"
+          />
+        </div>
+      ),
+    },
+  ];
 
-          <HallucinationDemo />
-        </>
-      )}
+  return (
+    <div className="space-y-8">
+      <p className="text-textMuted">
+        We start by exposing a misconception: that LLMs &quot;know&quot; things. Go through each step in order.
+      </p>
 
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Unlock Level 2</h3>
-        <QuizCard
-          question="Can LLMs access your private database by default?"
-          options={[
-            { label: "Yes, they have read access", correct: false, explanation: "Base models only know their training data; they can't query your DB." },
-            { label: "No—they have no direct access to your data", correct: true, explanation: "Correct. You need RAG or tools to ground them in your data." },
-            { label: "Only if you use OpenAI", correct: false, explanation: "No provider gives base models access to your private data." },
-          ]}
-          onCorrect={handleQuizCorrect}
-        />
+      <div className="glass rounded-xl p-6">
+        <StepByStep steps={steps} />
       </div>
 
-      <InstructorNotes title="Instructor notes — Level 1">
-        <p><strong>Hallucination mechanics:</strong> Explain that the model has no “confidence” score for facts—it just predicts next tokens. Emphasize that citations can be hallucinated too.</p>
-        <p><strong>Key question to ask:</strong> “What would happen if we asked this model about our internal revenue?” (No access → may guess or refuse.)</p>
-        <p><strong>Pitfall:</strong> Audiences often assume “bigger model” = “knows more.” Clarify: same training cutoff; we need RAG/tools for new or private data.</p>
-      </InstructorNotes>
+      <section className="mt-10">
+        <h3 className="text-lg font-semibold text-[var(--color-retrieval)] mb-3">LLMs vs RAG</h3>
+        <p className="text-sm text-textMuted mb-4">
+          Standalone LLMs lack up-to-date or private data and can hallucinate. RAG adds a retriever and knowledge base so the generator can answer with grounded, sourced responses.
+        </p>
+        <div className="rounded-xl overflow-hidden border border-border bg-surfaceElevated/50">
+          <Image
+            src="/LLMs%20vs%20RAG.png"
+            alt="Comparison: LLM limitations (out-of-date info, hallucinations, no sources) vs RAG system (Retriever + Knowledge Base + Generator producing sourced answers)"
+            width={800}
+            height={500}
+            className="w-full h-auto object-contain"
+          />
+        </div>
+      </section>
 
       {isLevelCompleted(levelNumber) && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="glass rounded-xl p-4 flex items-center gap-3 border border-green-500/30"
-        >
-          <span className="text-2xl">🎉</span>
-          <div>
-            <p className="font-semibold text-green-400">Level complete!</p>
-            <p className="text-sm text-textMuted">Level 2 is now unlocked.</p>
-          </div>
-        </motion.div>
+        <LevelCompleteCard message="Level 2 is now unlocked. You can continue to the next level below." />
       )}
+
+      <InstructorNotes title="Instructor — Level 1">
+        <p>Pause after the reveal. Ask: &quot;Who has seen a model give a confident wrong answer?&quot;</p>
+      </InstructorNotes>
     </div>
   );
 }

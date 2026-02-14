@@ -19,8 +19,9 @@ export default function Hero() {
           transition={{ duration: 0.6 }}
           className="text-accentSecondary font-mono text-sm mb-4"
         >
-          Level-based workshop • 2h • Production-ready AI
+          Level-based workshop • 2h 
         </motion.p>
+
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -31,15 +32,22 @@ export default function Hero() {
             From RAG to Agentic Systems
           </span>
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="text-xl text-textMuted max-w-2xl mx-auto mb-10"
+
+  
+        {/* Author Signature */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mb-10"
         >
-          Progress through levels. Unlock each stage by completing challenges.
-          No slides—an AI mastery journey.
-        </motion.p>
+          <p className="text-sm text-textMuted">
+            Prepared and led by{" "}
+            <span className="text-white font-medium">Rayen Abed</span>
+            <span className="opacity-70"> — Software Engineer & AI Specialist</span>
+          </p>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -50,15 +58,21 @@ export default function Hero() {
             onClick={scrollToLevel1}
             className="px-6 py-3 rounded-xl bg-accent text-white font-medium hover:opacity-90 transition-opacity"
           >
-            Start with Embeddings
+            Start the journey
           </button>
+
           <button
-            onClick={() => document.getElementById("level-6")?.scrollIntoView({ behavior: "smooth" })}
+            onClick={() =>
+              document
+                .getElementById("level-5")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
             className="px-6 py-3 rounded-xl glass font-medium hover:bg-white/5 transition-colors"
           >
-            See final level
+            See Level 5
           </button>
         </motion.div>
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

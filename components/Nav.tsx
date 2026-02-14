@@ -12,7 +12,6 @@ const LEVELS = [
   { id: "level-3", label: "L3" },
   { id: "level-4", label: "L4" },
   { id: "level-5", label: "L5" },
-  { id: "level-6", label: "L6" },
 ];
 
 export default function Nav() {

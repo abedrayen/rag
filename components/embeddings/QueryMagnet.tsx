@@ -15,7 +15,9 @@ const DOCS = [
 const W = 420;
 const H = 280;
 
-export default function QueryMagnet() {
+type QueryMagnetProps = { onInteract?: () => void };
+
+export default function QueryMagnet({ onInteract }: QueryMagnetProps) {
   const [query, setQuery] = useState("Domestic animal");
   const [focused, setFocused] = useState(false);
 
@@ -34,8 +36,8 @@ export default function QueryMagnet() {
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setFocused(true)}
+          onChange={(e) => { setQuery(e.target.value); onInteract?.(); }}
+          onFocus={() => { setFocused(true); onInteract?.(); }}
           onBlur={() => setFocused(false)}
           className="w-full max-w-xs px-4 py-2 rounded-lg bg-black/40 border border-accent/50 text-white placeholder-white/40 focus:ring-2 focus:ring-accent/50 focus:border-accent"
           placeholder="e.g. Domestic animal"
